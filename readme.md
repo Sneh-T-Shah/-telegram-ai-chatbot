@@ -44,6 +44,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 6. In the `llms.py` file, update the `urls` list with the URLs you want to scrape and use as the knowledge base for the chatbot.
 
+7. You would get the Token and bot username from the botfather bot of telegram you can find it's guidelines easily.
 ## Usage
 
 1. Run the `main.py` script:
