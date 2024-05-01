@@ -1,0 +1,7 @@
+langchain
+langchain_community
+langchain_openai
+python-telegram-bot
+nest-asyncio
+goose3
+faiss-cpu
