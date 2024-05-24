@@ -1,13 +1,17 @@
 import os
-from langchain_openai import OpenAIEmbeddings
+from dotenv import load_dotenv
+import openai
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.vectorstores import FAISS
-from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain import LLMChain
+from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.memory import ConversationBufferMemory
+from langchain_community.document_loaders import PDFMinerLoader
 from langchain.text_splitter import CharacterTextSplitter
 from pathlib import Path
 from langchain_community.document_loaders import TextLoader
+import chainlit as cl
 import goose3
 from langchain.memory import ConversationBufferMemory
 
@@ -23,21 +27,21 @@ def get_url_text_and_make_pdf(url: str,i:int):
         f.write(text)
 
 
-# Load the OpenAI API key
-os.environ["OPENAI_API_KEY"] = "sk- enter your openai key here"
+
+load_dotenv()
+openai.api_key = os.environ["OPENAI_API_KEY"]
 
 # Create OpenAI Embedding model
-embeddings = OpenAIEmbeddings()
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/multi-qa-MiniLM-L6-cos-v1")
 
 
 def make_embeddings():
-    # enter the urls you want to scrape and make texts of
-    urls = ["your urls here"]
+    urls = ["https://screenrant.com/pokemon-facts-trivia-things-you-never-knew-brock/","https://pokemon.fandom.com/wiki/Brock_(anime)","https://bulbapedia.bulbagarden.net/wiki/Brock_(anime)"]
     i = 0
     for url in urls:
         get_url_text_and_make_pdf(url,i)
         i+=1
-    pdf_folder = "texts/"
+    pdf_folder = "pdfs/"
     documents = []
     for pdf_file in Path(pdf_folder).glob("*.txt"):
         loader = TextLoader(pdf_folder + str(pdf_file.name),encoding = 'UTF-8')
@@ -52,14 +56,19 @@ def make_embeddings():
     db = FAISS.from_documents(texts, embeddings)
 
     # Create the chat model adujusting the temperature to 0.3 for more accurate responses can reduce the temperature for less creative response
-    chat = ChatOpenAI(temperature=0.3, model_name="gpt-3.5-turbo")
+    os.environ['GEMINI_API_KEY'] = '...........'
+    api_key = os.getenv('GEMINI_API_KEY')
 
     
-    # Create the LLM chain with a custom prompt  modifying the prompt to fit your use case
+    chat = ChatGoogleGenerativeAI(model="gemini-pro", google_api_key=api_key)
+
+
+    
+    # Create the LLM chain with a custom prompt
     prompt = PromptTemplate(
         input_variables=["docs" ,"chat_history","human_input"],
         template=("""
-        You are a interactive chatbot that can answer questions ...description about your content.
+        You are a interactive chatbot that can answer questions about Brok a character from pokemon series.
         here is the chat history so far:
         {chat_history}
         Answer the following question based on the context of chat history if it is related: {human_input}
@@ -76,8 +85,9 @@ def make_embeddings():
     return chain,db
 
 
-def get_response_from_query(db, query, chain, k=20):
+def get_response_from_query(db, query, chain, k=4):
     docs = db.similarity_search(query, k=k)
     docs_page_content = " ".join([d.page_content for d in docs])
+    print(docs_page_content)
     response = chain.predict(docs=docs_page_content,human_input=query)
     return response, docs
