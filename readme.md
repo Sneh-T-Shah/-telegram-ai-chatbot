@@ -5,7 +5,7 @@ This project creates an AI chatbot for Telegram channels using the OpenAI API an
 ## Prerequisites
 
 - Python 3.x
-- OpenAI API key
+- Gemmini api key
 - Telegram Bot API token and username
 
 ## Installation
@@ -22,10 +22,10 @@ git clone https://github.com/your-repo/telegram-ai-chatbot.git
 pip install -r requirements.txt
 ```
 
-3. Set your OpenAI API key as an environment variable:
+3. Set your Gemmini API key as an environment variable:
 
 ```
-export OPENAI_API_KEY="your_openai_api_key"
+export os.environ['GEMINI_API_KEY'] = 'Your api key here'
 ```
 
 4. Open the `main.py` file and replace the following placeholders with your actual values:
