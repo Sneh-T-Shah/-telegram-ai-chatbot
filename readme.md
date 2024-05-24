@@ -5,7 +5,7 @@ This project creates an AI chatbot for Telegram channels using the OpenAI API an
 ## Prerequisites
 
 - Python 3.x
-- Gemmini api key
+- Gemini api key
 - Telegram Bot API token and username
 
 ## Installation
